@@ -57,6 +57,12 @@ public struct Request<T, E: Auth0APIError>: Requestable {
                 request.url = urlComponents?.url ?? url
             } else if let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: []) {
                 request.httpBody = httpBody
+                var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)
+                var queryItems = urlComponents?.queryItems ?? []
+                let newQueryItems = parameters.map { URLQueryItem(name: $0.key, value: String(describing: $0.value)) }
+                queryItems.append(contentsOf: newQueryItems)
+                urlComponents?.queryItems = queryItems
+                request.url = urlComponents?.url ?? url
                 #if DEBUG
                 URLProtocol.setProperty(parameters, forKey: parameterPropertyKey, in: request)
                 #endif
